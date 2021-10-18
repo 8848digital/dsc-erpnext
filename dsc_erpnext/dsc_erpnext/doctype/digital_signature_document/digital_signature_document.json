@@ -1,0 +1,47 @@
+{
+ "actions": [],
+ "creation": "2021-10-18 11:32:44.857323",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "entity_type",
+  "print_format",
+  "default_signatory"
+ ],
+ "fields": [
+  {
+   "fieldname": "entity_type",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Entity Type",
+   "options": "DocType"
+  },
+  {
+   "fieldname": "print_format",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Print Format",
+   "options": "Print Format"
+  },
+  {
+   "fieldname": "default_signatory",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Default Signatory",
+   "options": "User"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2021-10-18 11:33:33.511748",
+ "modified_by": "Administrator",
+ "module": "Dsc Erpnext",
+ "name": "Digital signature Document",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}
