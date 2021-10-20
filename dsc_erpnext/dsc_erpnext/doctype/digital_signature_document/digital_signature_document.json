@@ -1,13 +1,14 @@
 {
  "actions": [],
- "creation": "2021-10-18 11:32:44.857323",
+ "creation": "2021-10-20 13:07:42.064812",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
   "entity_type",
   "print_format",
-  "workflow"
+  "workflow",
+  "role"
  ],
  "fields": [
   {
@@ -30,15 +31,20 @@
    "in_list_view": 1,
    "label": "Workflow",
    "options": "Workflow"
+  },
+  {
+   "fieldname": "role",
+   "fieldtype": "Link",
+   "label": "Role",
+   "options": "Role"
   }
  ],
- "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2021-10-19 13:14:33.597713",
+ "modified": "2021-10-20 14:27:06.567469",
  "modified_by": "Administrator",
  "module": "Dsc Erpnext",
- "name": "Digital signature Document",
+ "name": "Digital Signature Document",
  "owner": "Administrator",
  "permissions": [],
  "sort_field": "modified",

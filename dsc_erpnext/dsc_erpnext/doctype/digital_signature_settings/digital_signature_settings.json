@@ -24,13 +24,13 @@
    "fieldname": "documents",
    "fieldtype": "Table",
    "label": "Documents",
-   "options": "Digital signature Document"
+   "options": "Digital Signature Document"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2021-10-18 11:33:38.680461",
+ "modified": "2021-10-20 13:06:05.580514",
  "modified_by": "Administrator",
  "module": "Dsc Erpnext",
  "name": "Digital Signature Settings",

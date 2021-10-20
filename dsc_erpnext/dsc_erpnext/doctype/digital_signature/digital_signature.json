@@ -1,7 +1,7 @@
 {
  "actions": [],
- "autoname": "DS.####",
- "creation": "2021-10-16 14:47:30.332487",
+ "autoname": "DSC-.####",
+ "creation": "2021-10-20 14:35:25.409402",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -9,10 +9,10 @@
   "entity_type",
   "entity",
   "workflow",
-  "column_break_3",
+  "column_break_4",
   "status",
   "pdf_document",
-  "section_break_5",
+  "section_break_7",
   "signatories",
   "amended_from"
  ],
@@ -20,16 +20,31 @@
   {
    "fieldname": "entity_type",
    "fieldtype": "Link",
-   "in_list_view": 1,
    "label": "Entity Type",
    "options": "DocType"
   },
   {
    "fieldname": "entity",
    "fieldtype": "Dynamic Link",
-   "in_list_view": 1,
    "label": "Entity",
    "options": "entity_type"
+  },
+  {
+   "fieldname": "workflow",
+   "fieldtype": "Link",
+   "label": "Workflow",
+   "options": "Workflow",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "\nPending\nPartially Signed\nCompleted\nCancelled"
   },
   {
    "allow_on_submit": 1,
@@ -38,51 +53,32 @@
    "label": "PDF Document"
   },
   {
-   "fieldname": "status",
-   "fieldtype": "Select",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Status",
-   "options": "\nPending\nPartially Signed\nCompleted\nCancelled"
-  },
-  {
-   "fieldname": "section_break_5",
+   "fieldname": "section_break_7",
    "fieldtype": "Section Break"
   },
   {
    "fieldname": "signatories",
    "fieldtype": "Table",
    "label": "Signatories",
-   "options": "Digital signature Signatory"
-  },
-  {
-   "fieldname": "column_break_3",
-   "fieldtype": "Column Break"
+   "options": "Digital Signature Signatory"
   },
   {
    "fieldname": "amended_from",
    "fieldtype": "Link",
    "label": "Amended From",
    "no_copy": 1,
-   "options": "Digital signature",
+   "options": "Digital Signature",
    "print_hide": 1,
-   "read_only": 1
-  },
-  {
-   "fieldname": "workflow",
-   "fieldtype": "Link",
-   "label": "Workflow",
-   "options": "Workflow",
    "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-10-19 14:36:52.234713",
+ "modified": "2021-10-20 15:01:18.114553",
  "modified_by": "Administrator",
  "module": "Dsc Erpnext",
- "name": "Digital signature",
+ "name": "Digital Signature",
  "owner": "Administrator",
  "permissions": [
   {

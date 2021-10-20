@@ -4,5 +4,5 @@
 # import frappe
 import unittest
 
-class TestDigitalsignature(unittest.TestCase):
+class TestDigitalSignature(unittest.TestCase):
 	pass

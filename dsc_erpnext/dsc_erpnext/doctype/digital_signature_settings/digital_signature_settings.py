@@ -9,7 +9,7 @@ class DigitalSignatureSettings(Document):
 
 
 def get_digital_signature_documents(doctype):
-	documents = frappe.db.sql(f"select print_format,workflow from `tabDigital signature Document` where entity_type = '{doctype}'",as_dict=True)
+	documents = frappe.db.sql(f"select print_format,workflow from `tabDigital Signature Document` where entity_type = '{doctype}'",as_dict=True)
 	#document_list =  [d for document in documents for d in document]
 	document_dict = {document.print_format:document.workflow for document in documents}
 	return document_dict

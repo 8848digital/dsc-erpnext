@@ -1,6 +1,6 @@
 {
  "actions": [],
- "creation": "2021-10-16 14:51:52.911882",
+ "creation": "2021-10-20 14:31:14.561977",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -27,6 +27,13 @@
    "label": "Signature Position"
   },
   {
+   "fieldname": "document_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "\nPending\nSigned"
+  },
+  {
    "fieldname": "signed_pdf",
    "fieldtype": "Attach",
    "label": "Signed PDF"
@@ -40,22 +47,15 @@
    "fieldname": "emsigner_response",
    "fieldtype": "Text",
    "label": "emSigner Response"
-  },
-  {
-   "fieldname": "document_status",
-   "fieldtype": "Select",
-   "in_list_view": 1,
-   "label": "Status",
-   "options": "\nPending\nSigned"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2021-10-16 15:05:15.660853",
+ "modified": "2021-10-20 14:31:14.561977",
  "modified_by": "Administrator",
  "module": "Dsc Erpnext",
- "name": "Digital signature Signatory",
+ "name": "Digital Signature Signatory",
  "owner": "Administrator",
  "permissions": [],
  "sort_field": "modified",

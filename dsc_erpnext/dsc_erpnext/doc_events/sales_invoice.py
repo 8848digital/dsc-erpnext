@@ -6,7 +6,7 @@ def validate(self,method):
 	documents = get_digital_signature_documents(self.doctype)
 	if documents:
 		for print_format,workflow in documents.items():
-			doc = frappe.new_doc("Digital signature")
+			doc = frappe.new_doc("Digital Signature")
 			doc.entity_type = self.doctype
 			doc.entity = self.name
 			doc.workflow = workflow

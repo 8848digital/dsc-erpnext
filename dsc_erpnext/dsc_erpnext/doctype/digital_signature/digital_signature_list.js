@@ -1,4 +1,4 @@
-frappe.listview_settings['Digital signature'] = {
+frappe.listview_settings['Digital Signature'] = {
 	get_indicator: function(doc) {
 		var colors = {
 			"Pending": "orange",
