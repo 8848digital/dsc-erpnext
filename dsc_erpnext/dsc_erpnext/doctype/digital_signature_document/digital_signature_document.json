@@ -7,7 +7,7 @@
  "field_order": [
   "entity_type",
   "print_format",
-  "default_signatory"
+  "workflow"
  ],
  "fields": [
   {
@@ -25,17 +25,17 @@
    "options": "Print Format"
   },
   {
-   "fieldname": "default_signatory",
+   "fieldname": "workflow",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Default Signatory",
-   "options": "User"
+   "label": "Workflow",
+   "options": "Workflow"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2021-10-18 11:33:33.511748",
+ "modified": "2021-10-19 13:14:33.597713",
  "modified_by": "Administrator",
  "module": "Dsc Erpnext",
  "name": "Digital signature Document",

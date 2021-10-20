@@ -5,11 +5,12 @@ from frappe.desk.form.utils import get_pdf_link
 def validate(self,method):
 	documents = get_digital_signature_documents(self.doctype)
 	if documents:
-		for document in documents:
+		for print_format,workflow in documents.items():
 			doc = frappe.new_doc("Digital signature")
 			doc.entity_type = self.doctype
 			doc.entity = self.name
-			doc.pdf_document = get_pdf_link(self.doctype, self.name, document)
+			doc.workflow = workflow
+			doc.pdf_document = get_pdf_link(self.doctype, self.name, print_format)
 			doc.save()
 
 
