@@ -1,2 +1,2 @@
 frappe
-docusign_esign===3.12.0
+docusign_esign==3.12.0

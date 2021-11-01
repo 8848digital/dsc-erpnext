@@ -33,8 +33,7 @@
    "fieldname": "workflow",
    "fieldtype": "Link",
    "label": "Workflow",
-   "options": "Workflow",
-   "read_only": 1
+   "options": "Workflow"
   },
   {
    "fieldname": "column_break_4",
@@ -75,13 +74,15 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-10-20 15:01:18.114553",
+ "modified": "2021-10-28 11:46:03.854280",
  "modified_by": "Administrator",
  "module": "Dsc Erpnext",
  "name": "Digital Signature",
  "owner": "Administrator",
  "permissions": [
   {
+   "amend": 1,
+   "cancel": 1,
    "create": 1,
    "delete": 1,
    "email": 1,
@@ -91,6 +92,7 @@
    "report": 1,
    "role": "System Manager",
    "share": 1,
+   "submit": 1,
    "write": 1
   }
  ],
