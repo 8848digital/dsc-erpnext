@@ -8,7 +8,11 @@
   "entity_type",
   "print_format",
   "workflow",
-  "role"
+  "column_break_4",
+  "role_1",
+  "role_2",
+  "role_3",
+  "role_4"
  ],
  "fields": [
   {
@@ -33,15 +37,37 @@
    "options": "Workflow"
   },
   {
-   "fieldname": "role",
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "role_1",
    "fieldtype": "Link",
-   "label": "Role",
+   "label": "Role 1",
+   "options": "Role"
+  },
+  {
+   "fieldname": "role_2",
+   "fieldtype": "Link",
+   "label": "Role 2",
+   "options": "Role"
+  },
+  {
+   "fieldname": "role_3",
+   "fieldtype": "Link",
+   "label": "Role 3",
+   "options": "Role"
+  },
+  {
+   "fieldname": "role_4",
+   "fieldtype": "Link",
+   "label": "Role 4",
    "options": "Role"
   }
  ],
  "istable": 1,
  "links": [],
- "modified": "2021-10-20 14:27:06.567469",
+ "modified": "2021-11-02 12:13:16.883836",
  "modified_by": "Administrator",
  "module": "Dsc Erpnext",
  "name": "Digital Signature Document",
