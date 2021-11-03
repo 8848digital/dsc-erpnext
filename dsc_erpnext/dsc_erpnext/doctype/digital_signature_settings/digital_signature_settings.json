@@ -7,7 +7,8 @@
  "field_order": [
   "default_signatory",
   "section_break_2",
-  "documents"
+  "documents",
+  "create_workflows"
  ],
  "fields": [
   {
@@ -25,12 +26,18 @@
    "fieldtype": "Table",
    "label": "Documents",
    "options": "Digital Signature Document"
+  },
+  {
+   "fieldname": "create_workflows",
+   "fieldtype": "Button",
+   "label": "Create Workflows",
+   "options": "create_workflows"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2021-10-20 13:06:05.580514",
+ "modified": "2021-11-03 11:44:38.682859",
  "modified_by": "Administrator",
  "module": "Dsc Erpnext",
  "name": "Digital Signature Settings",
