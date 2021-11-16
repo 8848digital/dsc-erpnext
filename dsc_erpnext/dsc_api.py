@@ -3,9 +3,11 @@ import requests
 import base64
 import os
 import json
+from frappe.utils.pdf import get_pdf
 from frappe.utils import get_url_to_form
 from urllib.parse import parse_qs, urlparse
 from docusign_esign import EnvelopesApi, EnvelopeDefinition, Document, Signer, CarbonCopy, SignHere, Tabs, Recipients, ApiClient, RecipientViewRequest
+from frappe.utils import get_bench_path, get_site_path
 
 @frappe.whitelist()
 def get_access_code(doctype, docname):
@@ -64,10 +66,15 @@ def get_signing_url(doctype,docname,token):
 		"base_path"        : "https://demo.docusign.net/restapi",
 		"access_token"     : token
 	}
-	
+	bench_path = get_bench_path()
+	site_path = get_site_path().replace(".", "/sites",1)
+	base_path = bench_path + site_path
+	url = ds_doc.pdf_document
+	pdf_doc = get_pdf(url)
+
 	#with open(os.path.join('/home/frappe/frappe-bench/sites/site1.local/public/files', "VACCINE.pdf"),'rb') as file:
-	with open(os.path.join('/home/ubuntu/frappe-bench/sites/staging.8848digitalerp.com/public/files', "VACCINE.pdf"),'rb') as file:
-		content_bytes = file.read()
+	with open(os.path.join('file.pdf"),'rb') as file:
+		content_bytes = file.read(pdf_doc)
 	base64_file_content = base64.b64encode(content_bytes).decode('ascii')
 
 	# Create the document model
@@ -126,8 +133,7 @@ def get_signing_url(doctype,docname,token):
 		document_id=1,
 		envelope_id=envelope_id
 	)
-	#private_file_path = "/home/frappe/frappe-bench/sites/site1.local/private/files/" + frappe.generate_hash("",5) + ".pdf"
-	base_path = "/home/ubuntu/frappe-bench/sites/staging.8848digitalerp.com"
+
 	private_file_path = "/private/files/" + frappe.generate_hash("",5) + ".pdf"
 	os.rename(temp_file, base_path + private_file_path)
 	ds_doc.db_set('signed_document',private_file_path)
