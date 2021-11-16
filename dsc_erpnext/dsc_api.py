@@ -11,7 +11,7 @@ from docusign_esign import EnvelopesApi, EnvelopeDefinition, Document, Signer, C
 def get_access_code(doctype, docname):
 	base_url = "https://account-d.docusign.com/oauth/auth"
 	client_id = frappe.db.get_single_value('Docusign Settings','integration_key')
-	auth_url = "{0}?response_type=code&state={1}&scope=signature&client_id={2}&redirect_uri={3}".format(base_url,doctype+'|'+docname,client_id,'http://192.168.149.145/api/method/dsc_erpnext.dsc_api.auth_login')
+	auth_url = "{0}?response_type=code&state={1}&scope=signature&client_id={2}&redirect_uri={3}".format(base_url,doctype+'|'+docname,client_id,'http://staging.8848digitalerp.com/api/method/dsc_erpnext.dsc_api.auth_login')
 	return auth_url
 	
 @frappe.whitelist()
@@ -29,7 +29,6 @@ def auth_login():
 	document = parsed_qs['state'][0]
 	doctype = document.split('|')[0]
 	docname = document.split('|')[1]
-	#frappe.throw(str(parsed_qs))
 	req_headers = {"Authorization":"Basic {0}".format(auth_token.decode('utf-8'))}
 	post_data = {'grant_type':'authorization_code','code': code}
 
@@ -66,7 +65,8 @@ def get_signing_url(doctype,docname,token):
 		"access_token"     : token
 	}
 	
-	with open(os.path.join('/home/frappe/frappe-bench/sites/site1.local/public/files', "VACCINE.pdf"),'rb') as file:
+	#with open(os.path.join('/home/frappe/frappe-bench/sites/site1.local/public/files', "VACCINE.pdf"),'rb') as file:
+	with open(os.path.join('/home/ubuntu/frappe-bench/sites/staging.8848digitalerp.com/public/files', "VACCINE.pdf"),'rb') as file:
 		content_bytes = file.read()
 	base64_file_content = base64.b64encode(content_bytes).decode('ascii')
 
@@ -126,8 +126,10 @@ def get_signing_url(doctype,docname,token):
 		document_id=1,
 		envelope_id=envelope_id
 	)
-	private_file_path = "/home/frappe/frappe-bench/sites/site1.local/private/files/" + frappe.generate_hash("",5) + ".pdf"
-	os.rename(temp_file, private_file_path)
+	#private_file_path = "/home/frappe/frappe-bench/sites/site1.local/private/files/" + frappe.generate_hash("",5) + ".pdf"
+	base_path = "/home/ubuntu/frappe-bench/sites/staging.8848digitalerp.com"
+	private_file_path = "/private/files/" + frappe.generate_hash("",5) + ".pdf"
+	os.rename(temp_file, base_path + private_file_path)
 	ds_doc.db_set('signed_document',private_file_path)
 	frappe.local.response['type'] = 'redirect'
 	frappe.local.response['location'] = results.url

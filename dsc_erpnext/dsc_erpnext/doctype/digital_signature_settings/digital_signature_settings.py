@@ -22,6 +22,12 @@ class DigitalSignatureSettings(Document):
 			action_doc.save()
 
 		for document in self.documents:
+			if document.workflow:
+				frappe.msgprint(f"Row {document.idx} : workflow exist.")
+			if not document.workflow and frappe.db.exists("Workflow",f"DSC {document.entity_type}"):
+				document.db_set('workflow', f"DSC {document.entity_type}")
+			if not document.role_1 and not document.role_2 and not document.role_3 and not document.role_4:
+				frappe.throw(f"Row {document.idx} : Please select role to create workflow")
 			if document.entity_type and not frappe.db.exists("Workflow",f"DSC {document.entity_type}"):
 				workflow = frappe.new_doc("Workflow")
 				workflow.workflow_name = f"DSC {document.entity_type}"
