@@ -9,6 +9,7 @@ def validate(self,method):
 			doc = frappe.new_doc("Digital Signature")
 			doc.entity_type = self.doctype
 			doc.entity = self.name
+			doc.print_format = print_format
 			doc.workflow = workflow
 			doc.pdf_document = get_pdf_link(self.doctype, self.name, print_format)
 			doc.save()

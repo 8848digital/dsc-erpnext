@@ -7,13 +7,13 @@ from frappe.utils.pdf import get_pdf
 from frappe.utils import get_url_to_form
 from urllib.parse import parse_qs, urlparse
 from docusign_esign import EnvelopesApi, EnvelopeDefinition, Document, Signer, CarbonCopy, SignHere, Tabs, Recipients, ApiClient, RecipientViewRequest
-from frappe.utils import get_bench_path, get_site_path
+from frappe.utils import get_bench_path, get_site_path, get_request_site_address
 
 @frappe.whitelist()
 def get_access_code(doctype, docname):
 	base_url = "https://account-d.docusign.com/oauth/auth"
 	client_id = frappe.db.get_single_value('Docusign Settings','integration_key')
-	auth_url = "{0}?response_type=code&state={1}&scope=signature&client_id={2}&redirect_uri={3}".format(base_url,doctype+'|'+docname,client_id,'http://staging.8848digitalerp.com/api/method/dsc_erpnext.dsc_api.auth_login')
+	auth_url = "{0}?response_type=code&state={1}&scope=signature&client_id={2}&redirect_uri={3}".format(base_url,doctype+'|'+docname,client_id,'http://192.168.0.100/api/method/dsc_erpnext.dsc_api.auth_login')
 	return auth_url
 	
 @frappe.whitelist()
@@ -39,7 +39,6 @@ def auth_login():
 	
 	if not 'error' in response:
 		return ("{0}?token={1}".format(get_signing_url(doctype,docname,response['access_token']),response['access_token']))
-
 
 def get_signing_url(doctype,docname,token):
 	#check if access token exists
@@ -69,15 +68,23 @@ def get_signing_url(doctype,docname,token):
 	bench_path = get_bench_path()
 	site_path = get_site_path().replace(".", "/sites",1)
 	base_path = bench_path + site_path
-	url = ds_doc.pdf_document
-	pdf_doc = get_pdf(url)
+	public_path = "/public"
+	output = ""
+	if ds_doc.documents:
+		signed_doc = ""
+		for i, document in enumerate(ds_doc.documents):
+			if i + 1 ==  len(ds_doc.documents):
+				signed_doc = document.document
+		#path = base_path + public_path + signed_doc
+		path = base_path + signed_doc
+		with open(path,'rb') as file:
+			output = file.read()
+	else:
+		html = frappe.get_print(ds_doc.entity_type, ds_doc.entity, ds_doc.print_format)
+		output = get_pdf(html)
 
-	#with open(os.path.join('/home/frappe/frappe-bench/sites/site1.local/public/files', "VACCINE.pdf"),'rb') as file:
-	with open(os.path.join('file.pdf"),'rb') as file:
-		content_bytes = file.read(pdf_doc)
-	base64_file_content = base64.b64encode(content_bytes).decode('ascii')
+	base64_file_content = base64.b64encode(output).decode('ascii')
 
-	# Create the document model
 	document = Document( # create the DocuSign document object
 		document_base64 = base64_file_content,
 		name = 'Example document', # can be different from actual file name
@@ -133,13 +140,14 @@ def get_signing_url(doctype,docname,token):
 		document_id=1,
 		envelope_id=envelope_id
 	)
-
+	#private_file_path = "/files/" + frappe.generate_hash("",5) + ".pdf"
 	private_file_path = "/private/files/" + frappe.generate_hash("",5) + ".pdf"
 	os.rename(temp_file, base_path + private_file_path)
-	ds_doc.db_set('signed_document',private_file_path)
+	ds_doc.append("documents",{
+		'document': private_file_path
+	})
+	ds_doc.save()
 	frappe.local.response['type'] = 'redirect'
 	frappe.local.response['location'] = results.url
 	frappe.db.commit()
-	# return results.url
-
-	# return {"envelope_id": envelope_id, "redirect_url": results.url}
+	

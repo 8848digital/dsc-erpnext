@@ -8,19 +8,19 @@ frappe.ui.form.on('Digital Signature', {
 	},
 	
 	before_workflow_action: function(frm){
-		frappe.call({
-			'method': "dsc_erpnext.dsc_api.get_access_code",
-			'args': {
-				'doctype': frm.doc.doctype,
-				'docname': frm.doc.name
-			},
-			'callback': function(r){
-				console.log(r.message)
-				if(r.message){
-					console.log(r.message)
-					window.location.href = r.message
+		if(frm.doc.workflow_action != "Cancel"){
+			frappe.call({
+				'method': "dsc_erpnext.dsc_api.get_access_code",
+				'args': {
+					'doctype': frm.doc.doctype,
+					'docname': frm.doc.name
+				},
+				'callback': function(r){
+					if(r.message){
+						window.location.href = r.message
+					}
 				}
-			}
-		})
+			})
+		}
 	}
 });
