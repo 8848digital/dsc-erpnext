@@ -13,8 +13,6 @@
   "status",
   "print_format",
   "pdf_document",
-  "section_break_8",
-  "signatories",
   "section_break_7",
   "documents",
   "amended_from"
@@ -60,12 +58,6 @@
    "fieldtype": "Section Break"
   },
   {
-   "fieldname": "signatories",
-   "fieldtype": "Table",
-   "label": "Signatories",
-   "options": "Digital Signature Signatory"
-  },
-  {
    "fieldname": "amended_from",
    "fieldtype": "Link",
    "label": "Amended From",
@@ -73,10 +65,6 @@
    "options": "Digital Signature",
    "print_hide": 1,
    "read_only": 1
-  },
-  {
-   "fieldname": "section_break_8",
-   "fieldtype": "Section Break"
   },
   {
    "allow_on_submit": 1,
@@ -97,14 +85,13 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-11-17 16:46:11.469099",
+ "modified": "2021-11-20 16:57:04.782047",
  "modified_by": "Administrator",
  "module": "Dsc Erpnext",
  "name": "Digital Signature",
  "owner": "Administrator",
  "permissions": [
   {
-   "amend": 1,
    "cancel": 1,
    "create": 1,
    "delete": 1,

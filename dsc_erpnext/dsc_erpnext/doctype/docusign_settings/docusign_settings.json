@@ -7,7 +7,9 @@
  "field_order": [
   "account_id",
   "integration_key",
-  "secret_key"
+  "secret_key",
+  "column_break_4",
+  "base_path"
  ],
  "fields": [
   {
@@ -24,12 +26,21 @@
    "fieldname": "secret_key",
    "fieldtype": "Password",
    "label": "Secret Key"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "base_path",
+   "fieldtype": "Data",
+   "label": "Base Path"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2021-11-04 09:45:43.333427",
+ "modified": "2021-11-20 16:46:45.575496",
  "modified_by": "Administrator",
  "module": "Dsc Erpnext",
  "name": "Docusign Settings",

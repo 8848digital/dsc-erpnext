@@ -4,7 +4,7 @@ import base64
 import os
 import json
 from frappe.utils.pdf import get_pdf
-from frappe.utils import get_url_to_form
+from frappe.utils import get_url_to_form, now_datetime
 from urllib.parse import parse_qs, urlparse
 from docusign_esign import EnvelopesApi, EnvelopeDefinition, Document, Signer, CarbonCopy, SignHere, Tabs, Recipients, ApiClient, RecipientViewRequest
 from frappe.utils import get_bench_path, get_site_path, get_request_site_address
@@ -12,9 +12,11 @@ from frappe.utils.file_manager import save_file
 
 @frappe.whitelist()
 def get_access_code(doctype, docname):
-	base_url = "https://account-d.docusign.com/oauth/auth"
+	base_url =  "https://account-d.docusign.com/oauth/auth"
 	client_id = frappe.db.get_single_value('Docusign Settings','integration_key')
-	auth_url = "{0}?response_type=code&state={1}&scope=signature&client_id={2}&redirect_uri={3}".format(base_url,doctype+'|'+docname,client_id,'http://staging.8848digitalerp.com/api/method/dsc_erpnext.dsc_api.auth_login')
+	redirect_uri = 'http://192.168.0.100/api/method/dsc_erpnext.dsc_api.auth_login'
+	#redirect_uri = get_request_site_address() +'/api/method/dsc_erpnext.dsc_api.auth_login'
+	auth_url = "{0}?response_type=code&state={1}&scope=signature&client_id={2}&redirect_uri={3}".format(base_url, doctype+'|'+docname,client_id, redirect_uri)
 	return auth_url
 	
 @frappe.whitelist()
@@ -63,7 +65,7 @@ def get_signing_url(doctype,docname,token):
 		"signer_name"      : "Nirali Satapara",
 		"client_id"        : frappe.db.get_single_value('Docusign Settings','integration_key'),
 		"account_id"       : frappe.db.get_single_value('Docusign Settings','account_id'),
-		"base_path"        : "https://demo.docusign.net/restapi",
+		"base_path"        : frappe.db.get_single_value('Docusign Settings','base_path'),
 		"access_token"     : token
 	}
 	bench_path = get_bench_path()
@@ -146,7 +148,9 @@ def get_signing_url(doctype,docname,token):
 	private_file_path = "/private/files/" + file_name
 	os.rename(temp_file, base_path + private_file_path)
 	ds_doc.append("documents",{
-		'document': private_file_path
+		'document': private_file_path,
+		'user': frappe.session.user,
+		'timestamp': now_datetime()
 	})
 	with open(base_path + private_file_path, "rb") as pdf_file:
 		encoded_string = base64.b64encode(pdf_file.read())
