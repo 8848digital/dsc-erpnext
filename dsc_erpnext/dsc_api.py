@@ -8,12 +8,13 @@ from frappe.utils import get_url_to_form
 from urllib.parse import parse_qs, urlparse
 from docusign_esign import EnvelopesApi, EnvelopeDefinition, Document, Signer, CarbonCopy, SignHere, Tabs, Recipients, ApiClient, RecipientViewRequest
 from frappe.utils import get_bench_path, get_site_path, get_request_site_address
+from frappe.utils.file_manager import save_file
 
 @frappe.whitelist()
 def get_access_code(doctype, docname):
 	base_url = "https://account-d.docusign.com/oauth/auth"
 	client_id = frappe.db.get_single_value('Docusign Settings','integration_key')
-	auth_url = "{0}?response_type=code&state={1}&scope=signature&client_id={2}&redirect_uri={3}".format(base_url,doctype+'|'+docname,client_id,'http://192.168.0.100/api/method/dsc_erpnext.dsc_api.auth_login')
+	auth_url = "{0}?response_type=code&state={1}&scope=signature&client_id={2}&redirect_uri={3}".format(base_url,doctype+'|'+docname,client_id,'http://staging.8848digitalerp.com/api/method/dsc_erpnext.dsc_api.auth_login')
 	return auth_url
 	
 @frappe.whitelist()
@@ -141,11 +142,15 @@ def get_signing_url(doctype,docname,token):
 		envelope_id=envelope_id
 	)
 	#private_file_path = "/files/" + frappe.generate_hash("",5) + ".pdf"
-	private_file_path = "/private/files/" + frappe.generate_hash("",5) + ".pdf"
+	file_name = frappe.generate_hash("",5) + ".pdf"
+	private_file_path = "/private/files/" + file_name
 	os.rename(temp_file, base_path + private_file_path)
 	ds_doc.append("documents",{
 		'document': private_file_path
 	})
+	with open(base_path + private_file_path, "rb") as pdf_file:
+		encoded_string = base64.b64encode(pdf_file.read())
+	save_file(fname=file_name, content=encoded_string,dt=ds_doc.doctype, dn=ds_doc.name, decode=True, is_private=1)
 	ds_doc.save()
 	frappe.local.response['type'] = 'redirect'
 	frappe.local.response['location'] = results.url

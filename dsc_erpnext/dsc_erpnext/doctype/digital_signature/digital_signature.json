@@ -13,7 +13,6 @@
   "status",
   "print_format",
   "pdf_document",
-  "signed_document",
   "section_break_8",
   "signatories",
   "section_break_7",
@@ -24,12 +23,14 @@
   {
    "fieldname": "entity_type",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Entity Type",
    "options": "DocType"
   },
   {
    "fieldname": "entity",
    "fieldtype": "Dynamic Link",
+   "in_list_view": 1,
    "label": "Entity",
    "options": "entity_type"
   },
@@ -74,12 +75,6 @@
    "read_only": 1
   },
   {
-   "allow_on_submit": 1,
-   "fieldname": "signed_document",
-   "fieldtype": "Attach",
-   "label": "Signed Document"
-  },
-  {
    "fieldname": "section_break_8",
    "fieldtype": "Section Break"
   },
@@ -88,6 +83,7 @@
    "fieldname": "documents",
    "fieldtype": "Table",
    "label": "Documents",
+   "no_copy": 1,
    "options": "Digital Signature Signed Document"
   },
   {
@@ -101,7 +97,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-11-17 12:10:02.588129",
+ "modified": "2021-11-17 16:46:11.469099",
  "modified_by": "Administrator",
  "module": "Dsc Erpnext",
  "name": "Digital Signature",
