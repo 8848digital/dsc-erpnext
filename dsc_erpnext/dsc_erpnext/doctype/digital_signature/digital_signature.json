@@ -15,7 +15,8 @@
   "pdf_document",
   "section_break_7",
   "documents",
-  "amended_from"
+  "amended_from",
+  "workflow_state"
  ],
  "fields": [
   {
@@ -80,12 +81,20 @@
    "label": "Print Format",
    "options": "Print Format",
    "read_only": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "workflow_state",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Workflow state",
+   "no_copy": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-11-20 16:57:04.782047",
+ "modified": "2021-11-23 21:49:04.603851",
  "modified_by": "Administrator",
  "module": "Dsc Erpnext",
  "name": "Digital Signature",

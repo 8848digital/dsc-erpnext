@@ -7,7 +7,8 @@
  "field_order": [
   "document",
   "user",
-  "timestamp"
+  "timestamp",
+  "docusign_envelope_id"
  ],
  "fields": [
   {
@@ -30,12 +31,18 @@
    "in_list_view": 1,
    "label": "Timestamp",
    "read_only": 1
+  },
+  {
+   "fieldname": "docusign_envelope_id",
+   "fieldtype": "Data",
+   "label": "Docusign Envelope id",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2021-11-20 14:29:35.903133",
+ "modified": "2021-11-23 14:31:07.549732",
  "modified_by": "Administrator",
  "module": "Dsc Erpnext",
  "name": "Digital Signature Signed Document",
