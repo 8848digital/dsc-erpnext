@@ -1,21 +1,20 @@
 import frappe
+from frappe.utils import get_url_to_form, now_datetime, get_fullname, get_bench_path, get_site_path, get_request_site_address
+from frappe.utils.pdf import get_pdf
+from frappe.utils.file_manager import save_file
+from urllib.parse import parse_qs, urlparse
+from docusign_esign import EnvelopesApi, EnvelopeDefinition, Document, Signer, CarbonCopy, SignHere, Tabs, Recipients, ApiClient, RecipientViewRequest
 import requests
 import base64
 import os
 import json
-from frappe.utils.pdf import get_pdf
-from frappe.utils import get_url_to_form, now_datetime
-from urllib.parse import parse_qs, urlparse
-from docusign_esign import EnvelopesApi, EnvelopeDefinition, Document, Signer, CarbonCopy, SignHere, Tabs, Recipients, ApiClient, RecipientViewRequest
-from frappe.utils import get_bench_path, get_site_path, get_request_site_address
-from frappe.utils.file_manager import save_file
 
 @frappe.whitelist()
 def get_access_code(doctype, docname):
 	base_url =  "https://account-d.docusign.com/oauth/auth"
 	client_id = frappe.db.get_single_value('Docusign Settings','integration_key')
-	redirect_uri = 'http://192.168.0.100/api/method/dsc_erpnext.dsc_api.auth_login'
-	#redirect_uri = get_request_site_address() +'/api/method/dsc_erpnext.dsc_api.auth_login'
+	#redirect_uri = 'http://192.168.0.100/api/method/dsc_erpnext.dsc_api.auth_login'
+	redirect_uri = get_request_site_address() +'/api/method/dsc_erpnext.dsc_api.auth_login'
 	auth_url = "{0}?response_type=code&state={1}&scope=signature&client_id={2}&redirect_uri={3}".format(base_url, doctype+'|'+docname,client_id, redirect_uri)
 	return auth_url
 	
@@ -44,15 +43,7 @@ def auth_login():
 		return ("{0}?token={1}".format(get_signing_url(doctype,docname,response['access_token']),response['access_token']))
 
 def get_signing_url(doctype,docname,token):
-	#check if access token exists
-	# if yes
-	#	if valid
-	#		continue
-	#	else 
-	#		redirect to get access code
-	#else no
-		#redirect to get_access_code
-
+	
 	ds_doc= frappe.get_doc(doctype,docname)
 	"""
 	Creates envelope
@@ -61,8 +52,8 @@ def get_signing_url(doctype,docname,token):
 	returns an envelope definition
 	"""
 	args = {
-		"signer_email"     : "nirali@ascratech.com",
-		"signer_name"      : "Nirali Satapara",
+		"signer_email"     : frappe.session.user if frappe.session.user!= "Administrator" else "nirali@ascratech.com",
+		"signer_name"      : get_fullname(frappe.session.user),
 		"client_id"        : frappe.db.get_single_value('Docusign Settings','integration_key'),
 		"account_id"       : frappe.db.get_single_value('Docusign Settings','account_id'),
 		"base_path"        : frappe.db.get_single_value('Docusign Settings','base_path'),
@@ -71,14 +62,12 @@ def get_signing_url(doctype,docname,token):
 	bench_path = get_bench_path()
 	site_path = get_site_path().replace(".", "/sites",1)
 	base_path = bench_path + site_path
-	public_path = "/public"
 	output = ""
 	if ds_doc.documents:
 		signed_doc = ""
 		for i, document in enumerate(ds_doc.documents):
 			if i + 1 ==  len(ds_doc.documents):
 				signed_doc = document.document
-		#path = base_path + public_path + signed_doc
 		path = base_path + signed_doc
 		with open(path,'rb') as file:
 			output = file.read()
@@ -102,7 +91,7 @@ def get_signing_url(doctype,docname,token):
 		# Setting the client_user_id marks the signer as embedded
 		client_user_id = args['client_id']
 	)
-
+	
 	# Create a sign_here tab (field on the document)
 	sign_here = SignHere( # DocuSign SignHere field/tab
 		anchor_string = '/sn1/', anchor_units = 'pixels',
@@ -137,25 +126,29 @@ def get_signing_url(doctype,docname,token):
 		user_name = args['signer_name'], email = args['signer_email']
 	)
 	results = envelope_api.create_recipient_view(args['account_id'],envelope_id,recipient_view_request=recipient_view_request)
-	
+
 	temp_file = envelope_api.get_document(
 		account_id=args["account_id"],
 		document_id=1,
 		envelope_id=envelope_id
 	)
-	#private_file_path = "/files/" + frappe.generate_hash("",5) + ".pdf"
-	file_name = frappe.generate_hash("",5) + ".pdf"
-	private_file_path = "/private/files/" + file_name
-	os.rename(temp_file, base_path + private_file_path)
-	ds_doc.append("documents",{
-		'document': private_file_path,
-		'user': frappe.session.user,
-		'timestamp': now_datetime()
-	})
-	with open(base_path + private_file_path, "rb") as pdf_file:
-		encoded_string = base64.b64encode(pdf_file.read())
-	save_file(fname=file_name, content=encoded_string,dt=ds_doc.doctype, dn=ds_doc.name, decode=True, is_private=1)
-	ds_doc.save()
+
+	# file_name = frappe.generate_hash("",5) + ".pdf"
+	# private_file_path = "/private/files/" + file_name
+	# os.rename(temp_file, base_path + private_file_path)
+	# ds_doc.append("documents",{
+	# 	'document': private_file_path,
+	# 	'user': frappe.session.user,
+	# 	'timestamp': now_datetime()
+	# })
+	# with open(base_path + private_file_path, "rb") as pdf_file:
+	# 	encoded_string = base64.b64encode(pdf_file.read())
+
+	# save_file(fname=file_name, content=encoded_string,dt=ds_doc.doctype, dn=ds_doc.name, decode=True, is_private=1)
+	# ds_doc.save()
+	
+	frappe.db.set_value(ds_doc.entity_type,ds_doc.entity,'dsc_status',ds_doc.workflow_state)
+
 	frappe.local.response['type'] = 'redirect'
 	frappe.local.response['location'] = results.url
 	frappe.db.commit()

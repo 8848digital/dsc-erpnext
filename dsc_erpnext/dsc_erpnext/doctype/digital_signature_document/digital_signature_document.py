@@ -48,7 +48,7 @@ class DigitalSignatureDocument(Document):
 						"allow_edit": self.role_1
 					})
 					workflow.append("transitions",{
-						"state": "next_state",
+						"state": next_state,
 						"action": "Cancel",
 						"next_state": 'Cancelled',
 						"allowed": self.role_1
@@ -99,7 +99,7 @@ class DigitalSignatureDocument(Document):
 							"allow_edit": self.role_2
 					})
 					workflow.append("transitions",{
-						"state": "next_state",
+						"state": next_state,
 						"action": "Cancel",
 						"next_state": 'Cancelled',
 						"allowed": self.role_2
@@ -145,7 +145,7 @@ class DigitalSignatureDocument(Document):
 							"allow_edit": self.role_3
 					})
 					workflow.append("transitions",{
-						"state": "next_state",
+						"state": next_state,
 						"action": "Cancel",
 						"next_state": 'Cancelled',
 						"allowed": self.role_3
@@ -189,7 +189,7 @@ class DigitalSignatureDocument(Document):
 						"allow_edit": self.role_4
 				})
 				workflow.append("transitions",{
-						"state": "next_state",
+						"state": next_state,
 						"action": "Cancel",
 						"next_state": 'Cancelled',
 						"allowed": self.role_4

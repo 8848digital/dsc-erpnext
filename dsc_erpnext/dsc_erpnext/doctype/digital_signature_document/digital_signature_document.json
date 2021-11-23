@@ -44,42 +44,43 @@
    "fieldtype": "Column Break"
   },
   {
+   "depends_on": "eval: !doc.workflow",
    "fieldname": "role_1",
    "fieldtype": "Link",
    "label": "Role 1",
-   "options": "Role",
-   "read_only_depends_on": "eval: doc.workflow"
+   "options": "Role"
   },
   {
+   "depends_on": "eval: !doc.workflow",
    "fieldname": "role_2",
    "fieldtype": "Link",
    "label": "Role 2",
-   "options": "Role",
-   "read_only_depends_on": "eval: doc.workflow"
+   "options": "Role"
   },
   {
+   "depends_on": "eval: !doc.workflow",
    "fieldname": "role_3",
    "fieldtype": "Link",
    "label": "Role 3",
-   "options": "Role",
-   "read_only_depends_on": "eval: doc.workflow"
+   "options": "Role"
   },
   {
+   "depends_on": "eval: !doc.workflow",
    "fieldname": "role_4",
    "fieldtype": "Link",
    "label": "Role 4",
-   "options": "Role",
-   "read_only_depends_on": "eval: doc.workflow"
+   "options": "Role"
   },
   {
    "default": "0",
    "fieldname": "do_not_create_workflow",
    "fieldtype": "Check",
+   "hidden": 1,
    "label": "Do not create workflow"
   }
  ],
  "links": [],
- "modified": "2021-11-20 14:54:18.106886",
+ "modified": "2021-11-22 16:37:38.712268",
  "modified_by": "Administrator",
  "module": "Dsc Erpnext",
  "name": "Digital Signature Document",
