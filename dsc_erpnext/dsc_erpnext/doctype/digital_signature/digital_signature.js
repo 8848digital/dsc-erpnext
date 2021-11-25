@@ -7,7 +7,7 @@ frappe.ui.form.on('Digital Signature', {
 		});
 	},
 	
-	before_workflow_action: function(frm){
+	after_workflow_action: function(frm){
 		let workflow_state = frm.doc.workflow_state
 		console.log(workflow_state)
 		if(frm.doc.workflow_action != "Cancel"){
@@ -28,7 +28,6 @@ frappe.ui.form.on('Digital Signature', {
 						console.log('error')
 						frm.set_value('workflow_state',workflow_state)
 						frappe.db.set_value(frm.doc.doctype, frm.doc.name, 'workflow_state',workflow_state)
-						console.log(frm.doc.workflow_state)
 				},
 			})
 		}

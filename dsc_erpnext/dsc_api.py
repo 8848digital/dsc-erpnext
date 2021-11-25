@@ -9,11 +9,12 @@ import base64
 import os
 import json
 
+
 @frappe.whitelist()
 def get_access_code(doctype, docname):
 	base_url =  "https://account-d.docusign.com/oauth/auth"
 	client_id = frappe.db.get_single_value('Docusign Settings','integration_key')
-	redirect_uri = 'http://192.168.0.104/api/method/dsc_erpnext.dsc_api.auth_login'
+	redirect_uri = 'http://192.168.0.101/api/method/dsc_erpnext.dsc_api.auth_login'
 	#redirect_uri = get_request_site_address() +'/api/method/dsc_erpnext.dsc_api.auth_login'
 	auth_url = "{0}?response_type=code&state={1}&scope=signature&client_id={2}&redirect_uri={3}".format(base_url, doctype+'|'+docname,client_id, redirect_uri)
 	return auth_url
@@ -22,9 +23,8 @@ def get_access_code(doctype, docname):
 def auth_login():
 	data = get_access_token()
 	if data:
-		return ("{0}?token={1}".format(get_signing_url(data['doctype'],data['docname'],data['access_token']),data['access_token']))
-
-
+		return ("{0}?token={1}".format(get_signing_url(data['doctype'],data['docname'],data['access_token'],data['code']),data['access_token']))
+	
 def get_access_token():
 	base_url = "https://account-d.docusign.com/oauth/token"
 
@@ -46,11 +46,12 @@ def get_access_token():
 	response = r.json()
 
 	if not 'error' in response:
-		return {'access_token': response['access_token'],'doctype': doctype,'docname': docname }
+		return {'access_token': response['access_token'],'doctype': doctype,'docname': docname, 'code': code }
 
-def get_signing_url(doctype,docname,token):
+def get_signing_url(doctype,docname,token,code):
 	
 	ds_doc= frappe.get_doc(doctype,docname)
+	ds_doc.code = code
 	"""
 	Creates envelope
 	args -- parameters for the envelope:
@@ -135,12 +136,10 @@ def get_signing_url(doctype,docname,token):
 	return_url = get_url_to_form("Digital Signature",ds_doc.name)
 	recipient_view_request = RecipientViewRequest(
 		authentication_method="email",client_user_id=args['client_id'],
-		recipient_id = 1, return_url = return_url,
+		recipient_id = 1, return_url = "http://192.168.0.101/api/method/dsc_erpnext.dsc_api.get_signed_document?doctype=" + ds_doc.doctype+"&docname=" + ds_doc.name + "&token=" + args['access_token'],
 		user_name = args['signer_name'], email = args['signer_email']
 	)
-	# event_notification = EventNotification()
-	# event_notification.url = return_url
-	# event_notification.require_acknowledgment = 'true'
+	
 	results = envelope_api.create_recipient_view(args['account_id'],envelope_id,recipient_view_request=recipient_view_request)
 
 	# temp_file = envelope_api.get_document(
@@ -168,18 +167,34 @@ def get_signing_url(doctype,docname,token):
 	frappe.db.commit()
 	
 @frappe.whitelist()
-def get_signed_document():
-	data = get_access_token()
+def get_signed_document(doctype,docname,token):
+	#data = get_access_token()
+	data = {'doctype': doctype, 'docname': docname, 'access_token': token}
 	if data:
 		ds_doc = frappe.get_doc(data['doctype'],data['docname'])
 		base_path = frappe.db.get_single_value('Docusign Settings','base_path')
 		account_id = frappe.db.get_single_value('Docusign Settings','account_id')
 		if ds_doc.documents:
 			for document in ds_doc.documents:
-				if not document.document and document.docusign_envelope_id:	
+				if not document.document and document.docusign_envelope_id:
+					base_url = "https://account-d.docusign.com/oauth/token"
+
+					docusign_settings = frappe.get_single('Docusign Settings')
+					client_id = docusign_settings.integration_key
+					client_secret_key = docusign_settings.get_password('secret_key')
+					auth_code_string = '{0}:{1}'.format(client_id,client_secret_key)
+					auth_token = base64.b64encode(auth_code_string.encode())
+					req_headers = {"Authorization":"Basic {0}".format(auth_token.decode('utf-8'))}
+					post_data = {'grant_type':'authorization_code','code': ds_doc.code}
+					r = requests.post(base_url, data=post_data, headers=req_headers)
+					response = r.json()
+
+					if not 'error' in response:
+						access_token = response['access_token']
+					
 					api_client = ApiClient()
 					api_client.host = base_path
-					api_client.set_default_header("Authorization","Bearer " + data['access_token'])
+					api_client.set_default_header("Authorization","Bearer " + access_token)
 
 					envelope_api = EnvelopesApi(api_client)
 
@@ -201,11 +216,22 @@ def get_signed_document():
 						encoded_string = base64.b64encode(pdf_file.read())
 
 					save_file(fname=file_name, content=encoded_string,dt=ds_doc.doctype, dn=ds_doc.name, decode=True, is_private=1)
+					ds_doc.db_set('workflow_state',ds_doc.workflow_state.replace('Signing','Completed'))
 
 			frappe.local.response['type'] = 'redirect'
 			frappe.local.response['location'] = get_url_to_form("Digital Signature",ds_doc.name)
 			frappe.db.commit()
 
-
-					
-					
+# def dsc_change_status():
+	# data = frappe.get_all("Digital Signature","name")
+	# for row in data:
+	# 	doc = frappe.get_doc("Digital Signature",row['name'])
+	# 	if doc.workflow_state == "DSC 1 Signing" and len(doc.documents) == 1:
+	# 		doc.db_set("workflow_state","DSC 1 Completed")
+	# 	if doc.workflow_state == "DSC 2 Signing" and len(doc.documents) == 2:
+	# 		doc.db_set("workflow_state","DSC 2 Completed")
+	# 	if doc.workflow_state == "DSC 3 Signing" and len(doc.documents) == 3:
+	# 		doc.db_set("workflow_state","DSC 3 Completed")
+	# 	if doc.workflow_state == "DSC 4 Signing" and len(doc.documents) == 4:
+	# 		doc.db_set("workflow_state","DSC 4 Completed")
+	# frappe.db.commit()
