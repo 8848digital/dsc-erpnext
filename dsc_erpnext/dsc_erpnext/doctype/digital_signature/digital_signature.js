@@ -19,15 +19,12 @@ frappe.ui.form.on('Digital Signature', {
 				},
 				'callback': function(r){
 					if(r.message){
-						console.log(r.message)
 						window.location.href = r.message
 						//frappe.db.set_value(frm.doc.doctype, frm.doc.name, 'workflow_state',"DSC Completed")
 					}
 				},
 				'error': function() {
-						console.log('error')
-						frm.set_value('workflow_state',workflow_state)
-						frappe.db.set_value(frm.doc.doctype, frm.doc.name, 'workflow_state',workflow_state)
+					console.log('error')
 				},
 			})
 		}

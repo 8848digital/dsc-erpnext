@@ -14,8 +14,8 @@ import json
 def get_access_code(doctype, docname):
 	base_url =  "https://account-d.docusign.com/oauth/auth"
 	client_id = frappe.db.get_single_value('Docusign Settings','integration_key')
-	redirect_uri = 'http://192.168.0.101/api/method/dsc_erpnext.dsc_api.auth_login'
-	#redirect_uri = get_request_site_address() +'/api/method/dsc_erpnext.dsc_api.auth_login'
+	#redirect_uri = 'http://192.168.0.101/api/method/dsc_erpnext.dsc_api.auth_login'
+	redirect_uri = get_request_site_address() +'/api/method/dsc_erpnext.dsc_api.auth_login'
 	auth_url = "{0}?response_type=code&state={1}&scope=signature&client_id={2}&redirect_uri={3}".format(base_url, doctype+'|'+docname,client_id, redirect_uri)
 	return auth_url
 	
@@ -127,39 +127,22 @@ def get_signing_url(doctype,docname,token,code):
 
 	envelope_api = EnvelopesApi(api_client)
 	results = envelope_api.create_envelope(account_id=args['account_id'],envelope_definition=envelope_definition)
-	
-	# envelope_id= "f0116362-4b0a-4415-b34f-d2732e901835"
-	# results = envelope_api.get_envelope(args['account_id'], envelope_id)
-	# frappe.throw(str(results))
 
 	envelope_id = results.envelope_id
-	return_url = get_url_to_form("Digital Signature",ds_doc.name)
+	#return_url = "http://192.168.0.101/api/method/dsc_erpnext.dsc_api.get_signed_document?doctype=" + ds_doc.doctype+"&docname=" + ds_doc.name
+	return_url = get_request_site_address() + "/api/method/dsc_erpnext.dsc_api.get_signed_document?doctype=" + ds_doc.doctype+"&docname=" + ds_doc.name
 	recipient_view_request = RecipientViewRequest(
 		authentication_method="email",client_user_id=args['client_id'],
-		recipient_id = 1, return_url = "http://192.168.0.101/api/method/dsc_erpnext.dsc_api.get_signed_document?doctype=" + ds_doc.doctype+"&docname=" + ds_doc.name + "&token=" + args['access_token'],
+		recipient_id = 1, return_url = return_url,
 		user_name = args['signer_name'], email = args['signer_email']
 	)
 	
 	results = envelope_api.create_recipient_view(args['account_id'],envelope_id,recipient_view_request=recipient_view_request)
 
-	# temp_file = envelope_api.get_document(
-	# 	account_id=args["account_id"],
-	# 	document_id=1,
-	# 	envelope_id=envelope_id
-	# )
-
-	# file_name = frappe.generate_hash("",5) + ".pdf"
-	# private_file_path = "/private/files/" + file_name
-	# os.rename(temp_file, base_path + private_file_path)
 	ds_doc.append("documents",{
 		'docusign_envelope_id': envelope_id,
 	})
-	# with open(base_path + private_file_path, "rb") as pdf_file:
-	# 	encoded_string = base64.b64encode(pdf_file.read())
-
-	# save_file(fname=file_name, content=encoded_string,dt=ds_doc.doctype, dn=ds_doc.name, decode=True, is_private=1)
 	ds_doc.save()
-	
 	frappe.db.set_value(ds_doc.entity_type,ds_doc.entity,'dsc_status',ds_doc.workflow_state)
 
 	frappe.local.response['type'] = 'redirect'
@@ -167,25 +150,23 @@ def get_signing_url(doctype,docname,token,code):
 	frappe.db.commit()
 	
 @frappe.whitelist()
-def get_signed_document(doctype,docname,token):
-	#data = get_access_token()
-	data = {'doctype': doctype, 'docname': docname, 'access_token': token}
-	if data:
-		ds_doc = frappe.get_doc(data['doctype'],data['docname'])
+def get_signed_document(doctype,docname):
+		ds_doc = frappe.get_doc(doctype ,docname)
 		base_path = frappe.db.get_single_value('Docusign Settings','base_path')
 		account_id = frappe.db.get_single_value('Docusign Settings','account_id')
 		if ds_doc.documents:
+			docusign_settings = frappe.get_single('Docusign Settings')
+			client_id = docusign_settings.integration_key
+			client_secret_key = docusign_settings.get_password('secret_key')
+			auth_code_string = '{0}:{1}'.format(client_id,client_secret_key)
+			auth_token = base64.b64encode(auth_code_string.encode())
+
+			base_url = "https://account-d.docusign.com/oauth/token"
+			req_headers = {"Authorization":"Basic {0}".format(auth_token.decode('utf-8'))}
+			post_data = {'grant_type':'authorization_code','code': ds_doc.code}
+
 			for document in ds_doc.documents:
 				if not document.document and document.docusign_envelope_id:
-					base_url = "https://account-d.docusign.com/oauth/token"
-
-					docusign_settings = frappe.get_single('Docusign Settings')
-					client_id = docusign_settings.integration_key
-					client_secret_key = docusign_settings.get_password('secret_key')
-					auth_code_string = '{0}:{1}'.format(client_id,client_secret_key)
-					auth_token = base64.b64encode(auth_code_string.encode())
-					req_headers = {"Authorization":"Basic {0}".format(auth_token.decode('utf-8'))}
-					post_data = {'grant_type':'authorization_code','code': ds_doc.code}
 					r = requests.post(base_url, data=post_data, headers=req_headers)
 					response = r.json()
 

@@ -7,14 +7,17 @@
  "engine": "InnoDB",
  "field_order": [
   "entity_type",
+  "column_break_2",
   "print_format",
-  "workflow",
-  "do_not_create_workflow",
-  "column_break_4",
+  "roles_section",
   "role_1",
   "role_2",
+  "column_break_4",
   "role_3",
-  "role_4"
+  "role_4",
+  "section_break_10",
+  "workflow",
+  "do_not_create_workflow"
  ],
  "fields": [
   {
@@ -33,6 +36,7 @@
    "unique": 1
   },
   {
+   "description": "If you already have workflow, you can select.",
    "fieldname": "workflow",
    "fieldtype": "Link",
    "in_list_view": 1,
@@ -77,10 +81,24 @@
    "fieldtype": "Check",
    "hidden": 1,
    "label": "Do not create workflow"
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "roles_section",
+   "fieldtype": "Section Break",
+   "label": "Roles"
+  },
+  {
+   "fieldname": "section_break_10",
+   "fieldtype": "Section Break",
+   "label": "Workflow"
   }
  ],
  "links": [],
- "modified": "2021-11-22 16:37:38.712268",
+ "modified": "2021-11-26 11:31:41.225579",
  "modified_by": "Administrator",
  "module": "Dsc Erpnext",
  "name": "Digital Signature Document",

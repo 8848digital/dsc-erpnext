@@ -74,7 +74,8 @@
    "fieldtype": "Table",
    "label": "Documents",
    "no_copy": 1,
-   "options": "Digital Signature Signed Document"
+   "options": "Digital Signature Signed Document",
+   "read_only": 1
   },
   {
    "fieldname": "print_format",
@@ -102,7 +103,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-11-25 14:53:05.903826",
+ "modified": "2021-11-26 12:18:57.469555",
  "modified_by": "Administrator",
  "module": "Dsc Erpnext",
  "name": "Digital Signature",

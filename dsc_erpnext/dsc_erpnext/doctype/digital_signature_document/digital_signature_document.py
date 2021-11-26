@@ -13,7 +13,7 @@ class DigitalSignatureDocument(Document):
 		workflow_state_list = ["DSC 1 Completed","DSC 2 Completed","DSC 3 Completed","DSC Completed"]
 		workflow_internal_list = ["DSC 1 Signing","DSC 2 Signing","DSC 3 Signing","DSC Signing"]
 		workflow_action_list = ["DSC 1","DSC 2","DSC 3","DSC 4"]
-		default_workflow_state = ["DSC Completed","Submitted","Cancelled"]
+		default_workflow_state = ["DSC Signing","DSC Completed","Submitted","Cancelled"]
 		
 		for state in default_workflow_state:
 			if not frappe.db.exists("Workflow State",state):
@@ -32,8 +32,7 @@ class DigitalSignatureDocument(Document):
 		if not self.role_1 and not self.role_2 and not self.role_3 and not self.role_4:
 			frappe.throw(f"Row {self.idx} : Please select role to create workflow")
 
-		if self.entity_type and not frappe.db.exists("Workflow",f"DSC {self.entity_type}"):
-			
+		if self.entity_type and not frappe.db.exists("Workflow",f"DSC {self.entity_type}"):	
 			workflow = frappe.new_doc("Workflow")
 			workflow.workflow_name = f"DSC {self.entity_type}"
 			workflow.document_type = "Digital Signature"
@@ -41,6 +40,37 @@ class DigitalSignatureDocument(Document):
 		
 			if self.role_1:
 				next_state = next_internal_state = workflow_internal_list[0]
+				
+				if not frappe.db.exists("Workflow State",workflow_state_list[0]):
+					state_doc = frappe.new_doc("Workflow State")
+					state_doc.workflow_state_name = workflow_state_list[0]
+					state_doc.save()
+				if not frappe.db.exists("Workflow State",workflow_internal_list[0]):
+					state_doc = frappe.new_doc("Workflow State")
+					state_doc.workflow_state_name = workflow_internal_list[0]
+					state_doc.save()
+				if not frappe.db.exists("Workflow Action Master",workflow_action_list[0]):
+					action_doc = frappe.new_doc("Workflow Action Master")
+					action_doc.workflow_action_name = workflow_action_list[0]
+					action_doc.save()
+
+				workflow.append("states",{
+					"state": "Submitted",
+					"doc_status": 1,
+					"allow_edit": self.role_1
+				})
+				workflow.append("transitions",{
+					"state": "Submitted",
+					"action": workflow_action_list[0],
+					"next_state": next_internal_state,
+					"allowed": self.role_1
+				})
+				workflow.append("transitions",{
+					"state": "Submitted",
+					"action": "Cancel",
+					"next_state": "Cancelled",
+					"allowed": self.role_1
+				})
 				if not self.role_2 and not self.role_3 and not self.role_4:
 					next_state = "DSC Completed"
 					next_internal_state = "DSC Signing"
@@ -72,41 +102,11 @@ class DigitalSignatureDocument(Document):
 						"doc_status": 1,
 						"allow_edit": self.role_1
 					})
-				if not frappe.db.exists("Workflow State",workflow_state_list[0]):
-					state_doc = frappe.new_doc("Workflow State")
-					state_doc.workflow_state_name = workflow_state_list[0]
-					state_doc.save()
-				if not frappe.db.exists("Workflow State",workflow_internal_list[0]):
-					state_doc = frappe.new_doc("Workflow State")
-					state_doc.workflow_state_name = workflow_internal_list[0]
-					state_doc.save()
-				if not frappe.db.exists("Workflow Action Master",workflow_action_list[0]):
-					action_doc = frappe.new_doc("Workflow Action Master")
-					action_doc.workflow_action_name = workflow_action_list[0]
-					action_doc.save()
-
-				workflow.append("states",{
-					"state": "Submitted",
-					"doc_status": 1,
-					"allow_edit": self.role_1
-				})
-				workflow.append("states",{
-					"state": "Cancelled",
-					"doc_status": 2,
-					"allow_edit": self.role_1
-				})
-				workflow.append("transitions",{
-					"state": "Submitted",
-					"action": workflow_action_list[0],
-					"next_state": next_internal_state,
-					"allowed": self.role_1
-				})
-				workflow.append("transitions",{
-					"state": "Submitted",
-					"action": "Cancel",
-					"next_state": "Cancelled",
-					"allowed": self.role_1
-				})
+					workflow.append("states",{
+						"state": "Cancelled",
+						"doc_status": 2,
+						"allow_edit": self.role_1
+					})
 
 			if self.role_2:
 				next_state = next_internal_state = workflow_internal_list[1]
@@ -141,6 +141,11 @@ class DigitalSignatureDocument(Document):
 						"doc_status": 1,
 						"allow_edit": self.role_2
 					})
+					workflow.append("states",{
+						"state": "Cancelled",
+						"doc_status": 2,
+						"allow_edit": self.role_2
+					})
 
 				if not frappe.db.exists("Workflow State",workflow_state_list[1]):
 					state_doc = frappe.new_doc("Workflow State")
@@ -155,11 +160,6 @@ class DigitalSignatureDocument(Document):
 					action_doc.workflow_action_name = workflow_action_list[1]
 					action_doc.save()
 			
-				workflow.append("states",{
-					"state": "Cancelled",
-					"doc_status": 2,
-					"allow_edit": self.role_2
-				})
 				workflow.append("transitions",{
 					"state": workflow_state_list[0],
 					"action": workflow_action_list[1],
@@ -206,6 +206,11 @@ class DigitalSignatureDocument(Document):
 						"doc_status": 1,
 						"allow_edit": self.role_3
 					})
+					workflow.append("states",{
+						"state": "Cancelled",
+						"doc_status": 2,
+						"allow_edit": self.role_3
+					})
 
 				if not frappe.db.exists("Workflow State",workflow_state_list[2]):
 					state_doc = frappe.new_doc("Workflow State")
@@ -220,11 +225,6 @@ class DigitalSignatureDocument(Document):
 					action_doc.workflow_action_name = workflow_action_list[2]
 					action_doc.save()
 
-				workflow.append("states",{
-					"state": "Cancelled",
-					"doc_status": 2,
-					"allow_edit": self.role_3
-				})
 				workflow.append("transitions",{
 					"state": workflow_state_list[1],
 					"action": workflow_action_list[2],
