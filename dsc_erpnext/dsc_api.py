@@ -173,32 +173,42 @@ def get_signed_document(doctype,docname):
 					if not 'error' in response:
 						access_token = response['access_token']
 					
-					api_client = ApiClient()
-					api_client.host = base_path
-					api_client.set_default_header("Authorization","Bearer " + access_token)
+					url = "https://demo.docusign.net/restapi/v2.1/accounts/"+ account_id +"/envelopes/" + document.docusign_envelope_id
+					headers = {'Authorization': 'Bearer '+ access_token}
+					r = requests.get(url,headers=headers)
+					response = r.json()
+					if r.status_code == 200 and response['status']=="completed":
+						api_client = ApiClient()
+						api_client.host = base_path
+						api_client.set_default_header("Authorization","Bearer " + access_token)
 
-					envelope_api = EnvelopesApi(api_client)
+						envelope_api = EnvelopesApi(api_client)
 
-					temp_file = envelope_api.get_document(
-						account_id=account_id,
-						document_id=1,
-						envelope_id=document.docusign_envelope_id
-					)
-					bench_path = get_bench_path()
-					site_path = get_site_path().replace(".", "/sites",1)
-					base_path_ = bench_path + site_path
-					file_name = frappe.generate_hash("",5) + ".pdf"
-					private_file_path = "/private/files/" + file_name
-					os.rename(temp_file, base_path_ + private_file_path)
-					document.db_set('document',private_file_path)
-					document.db_set('user', frappe.session.user)
-					document.db_set('timestamp',now_datetime())
-					with open(base_path_ + private_file_path, "rb") as pdf_file:
-						encoded_string = base64.b64encode(pdf_file.read())
+						temp_file = envelope_api.get_document(
+							account_id=account_id,
+							document_id=1,
+							envelope_id=document.docusign_envelope_id
+						)
+						bench_path = get_bench_path()
+						site_path = get_site_path().replace(".", "/sites",1)
+						base_path_ = bench_path + site_path
+						file_name = frappe.generate_hash("",5) + ".pdf"
+						private_file_path = "/private/files/" + file_name
+						os.rename(temp_file, base_path_ + private_file_path)
 
-					save_file(fname=file_name, content=encoded_string,dt=ds_doc.doctype, dn=ds_doc.name, decode=True, is_private=1)
-					ds_doc.db_set('workflow_state',ds_doc.workflow_state.replace('Signing','Completed'))
+						document.db_set('document',private_file_path)
+						document.db_set('user', frappe.session.user)
+						document.db_set('timestamp',now_datetime())
 
+						with open(base_path_ + private_file_path, "rb") as pdf_file:
+							encoded_string = base64.b64encode(pdf_file.read())
+						save_file(fname=file_name, content=encoded_string,dt=ds_doc.doctype, dn=ds_doc.name, decode=True, is_private=1)
+						
+						ds_doc.db_set('workflow_state',ds_doc.workflow_state.replace('Signing','Completed'))
+						frappe.db.set_value(ds_doc.entity_type,ds_doc.entity,'dsc_status',ds_doc.workflow_state)
+					else:
+						ds_doc.db_set('workflow_state','Test')
+						
 			frappe.local.response['type'] = 'redirect'
 			frappe.local.response['location'] = get_url_to_form("Digital Signature",ds_doc.name)
 			frappe.db.commit()

@@ -8,8 +8,6 @@ frappe.ui.form.on('Digital Signature', {
 	},
 	
 	after_workflow_action: function(frm){
-		let workflow_state = frm.doc.workflow_state
-		console.log(workflow_state)
 		if(frm.doc.workflow_action != "Cancel"){
 			frappe.call({
 				'method': "dsc_erpnext.dsc_api.get_access_code",
@@ -17,6 +15,8 @@ frappe.ui.form.on('Digital Signature', {
 					'doctype': frm.doc.doctype,
 					'docname': frm.doc.name
 				},
+				freeze: true,
+				freeze_message: __("Sending"),
 				'callback': function(r){
 					if(r.message){
 						window.location.href = r.message
