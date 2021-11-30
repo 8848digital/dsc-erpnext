@@ -6,6 +6,7 @@
  "engine": "InnoDB",
  "field_order": [
   "document",
+  "certificate",
   "user",
   "timestamp",
   "docusign_envelope_id"
@@ -37,12 +38,18 @@
    "fieldtype": "Data",
    "label": "Docusign Envelope id",
    "read_only": 1
+  },
+  {
+   "fieldname": "certificate",
+   "fieldtype": "Attach",
+   "in_list_view": 1,
+   "label": "Certificate"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2021-11-23 14:31:07.549732",
+ "modified": "2021-11-30 14:19:58.074797",
  "modified_by": "Administrator",
  "module": "Dsc Erpnext",
  "name": "Digital Signature Signed Document",

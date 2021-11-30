@@ -107,13 +107,13 @@ doc_events = {
 
 # Scheduled Tasks
 # ---------------
-# scheduler_events = {
-# 	"cron": {
-# 		"*/5 * * * *": [
-# 			"dsc_erpnext.dsc_api.dsc_change_status",
-# 		]
-# 	}
-# }
+scheduler_events = {
+	"cron": {
+		"*/5 * * * *": [
+			"dsc_erpnext.dsc_api.dsc_change_status",
+		]
+	}
+}
 # scheduler_events = {
 # 	"all": [
 # 		"dsc_erpnext.tasks.all"

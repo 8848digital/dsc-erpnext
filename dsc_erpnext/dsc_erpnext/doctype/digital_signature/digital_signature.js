@@ -1,6 +1,6 @@
 frappe.ui.form.on('Digital Signature', {
 	setup: function(frm) {
-		frm.set_query("entity", function() {
+		frm.set_query("document", function() {
 			return {"filters": {
 				'docstatus': 1
 			}};

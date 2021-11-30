@@ -6,8 +6,8 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "entity_type",
-  "entity",
+  "document_type",
+  "document",
   "workflow",
   "column_break_4",
   "status",
@@ -17,23 +17,10 @@
   "documents",
   "amended_from",
   "workflow_state",
-  "code"
+  "code",
+  "previous_state"
  ],
  "fields": [
-  {
-   "fieldname": "entity_type",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Entity Type",
-   "options": "DocType"
-  },
-  {
-   "fieldname": "entity",
-   "fieldtype": "Dynamic Link",
-   "in_list_view": 1,
-   "label": "Entity",
-   "options": "entity_type"
-  },
   {
    "fieldname": "workflow",
    "fieldtype": "Data",
@@ -74,8 +61,7 @@
    "fieldtype": "Table",
    "label": "Documents",
    "no_copy": 1,
-   "options": "Digital Signature Signed Document",
-   "read_only": 1
+   "options": "Digital Signature Signed Document"
   },
   {
    "fieldname": "print_format",
@@ -98,12 +84,33 @@
    "fieldtype": "Small Text",
    "hidden": 1,
    "label": "Code"
+  },
+  {
+   "fieldname": "document_type",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Document Type",
+   "options": "DocType"
+  },
+  {
+   "fieldname": "document",
+   "fieldtype": "Dynamic Link",
+   "in_list_view": 1,
+   "label": "Document",
+   "options": "document_type"
+  },
+  {
+   "fieldname": "previous_state",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Previous State",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-11-26 12:18:57.469555",
+ "modified": "2021-11-30 12:39:02.881891",
  "modified_by": "Administrator",
  "module": "Dsc Erpnext",
  "name": "Digital Signature",

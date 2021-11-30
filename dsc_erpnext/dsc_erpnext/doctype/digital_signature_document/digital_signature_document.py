@@ -26,15 +26,15 @@ class DigitalSignatureDocument(Document):
 			action_doc.workflow_action_name = "Cancel"
 			action_doc.save()
 		
-		if not self.workflow and frappe.db.exists("Workflow",f"DSC {self.entity_type}"):
-			self.workflow= f"DSC {self.entity_type}"
+		if not self.workflow and frappe.db.exists("Workflow",f"DSC {self.document_type}"):
+			self.workflow= f"DSC {self.document_type}"
 
 		if not self.role_1 and not self.role_2 and not self.role_3 and not self.role_4:
 			frappe.throw(f"Row {self.idx} : Please select role to create workflow")
 
-		if self.entity_type and not frappe.db.exists("Workflow",f"DSC {self.entity_type}"):	
+		if self.document_type and not frappe.db.exists("Workflow",f"DSC {self.document_type}"):	
 			workflow = frappe.new_doc("Workflow")
-			workflow.workflow_name = f"DSC {self.entity_type}"
+			workflow.workflow_name = f"DSC {self.document_type}"
 			workflow.document_type = "Digital Signature"
 			workflow.sent_email_alert = 0
 		

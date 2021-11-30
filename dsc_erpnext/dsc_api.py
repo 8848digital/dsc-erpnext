@@ -9,13 +9,12 @@ import base64
 import os
 import json
 
-
 @frappe.whitelist()
 def get_access_code(doctype, docname):
 	base_url =  "https://account-d.docusign.com/oauth/auth"
 	client_id = frappe.db.get_single_value('Docusign Settings','integration_key')
-	#redirect_uri = 'http://192.168.0.101/api/method/dsc_erpnext.dsc_api.auth_login'
-	redirect_uri = get_request_site_address() +'/api/method/dsc_erpnext.dsc_api.auth_login'
+	redirect_uri = 'http://192.168.0.100/api/method/dsc_erpnext.dsc_api.auth_login'
+	#redirect_uri = get_request_site_address() +'/api/method/dsc_erpnext.dsc_api.auth_login'
 	auth_url = "{0}?response_type=code&state={1}&scope=signature&client_id={2}&redirect_uri={3}".format(base_url, doctype+'|'+docname,client_id, redirect_uri)
 	return auth_url
 	
@@ -50,14 +49,8 @@ def get_access_token():
 
 def get_signing_url(doctype,docname,token,code):
 	
-	ds_doc= frappe.get_doc(doctype,docname)
+	ds_doc = frappe.get_doc(doctype,docname)
 	ds_doc.code = code
-	"""
-	Creates envelope
-	args -- parameters for the envelope:
-	signer_email, signer_name, signer_client_id
-	returns an envelope definition
-	"""
 	args = {
 		"signer_email"     : frappe.session.user if frappe.session.user!= "Administrator" else "nirali@ascratech.com",
 		"signer_name"      : get_fullname(frappe.session.user),
@@ -70,6 +63,7 @@ def get_signing_url(doctype,docname,token,code):
 	site_path = get_site_path().replace(".", "/sites",1)
 	base_path = bench_path + site_path
 	output = ""
+
 	if ds_doc.documents:
 		signed_doc = ""
 		for i, document in enumerate(ds_doc.documents):
@@ -79,10 +73,10 @@ def get_signing_url(doctype,docname,token,code):
 				with open(path,'rb') as file:
 					output = file.read()
 			else:
-				html = frappe.get_print(ds_doc.entity_type, ds_doc.entity, ds_doc.print_format)
+				html = frappe.get_print(ds_doc.document_type, ds_doc.document, ds_doc.print_format)
 				output = get_pdf(html)
 	else:
-		html = frappe.get_print(ds_doc.entity_type, ds_doc.entity, ds_doc.print_format)
+		html = frappe.get_print(ds_doc.document_type, ds_doc.document, ds_doc.print_format)
 		output = get_pdf(html)
 
 	base64_file_content = base64.b64encode(output).decode('ascii')
@@ -129,8 +123,8 @@ def get_signing_url(doctype,docname,token,code):
 	results = envelope_api.create_envelope(account_id=args['account_id'],envelope_definition=envelope_definition)
 
 	envelope_id = results.envelope_id
-	#return_url = "http://192.168.0.101/api/method/dsc_erpnext.dsc_api.get_signed_document?doctype=" + ds_doc.doctype+"&docname=" + ds_doc.name
-	return_url = get_request_site_address() + "/api/method/dsc_erpnext.dsc_api.get_signed_document?doctype=" + ds_doc.doctype+"&docname=" + ds_doc.name
+	return_url = "http://192.168.0.100/api/method/dsc_erpnext.dsc_api.get_signed_document?doctype=" + ds_doc.doctype+"&docname=" + ds_doc.name
+	#return_url = get_request_site_address() + "/api/method/dsc_erpnext.dsc_api.get_signed_document?doctype=" + ds_doc.doctype+"&docname=" + ds_doc.name
 	recipient_view_request = RecipientViewRequest(
 		authentication_method="email",client_user_id=args['client_id'],
 		recipient_id = 1, return_url = return_url,
@@ -143,7 +137,7 @@ def get_signing_url(doctype,docname,token,code):
 		'docusign_envelope_id': envelope_id,
 	})
 	ds_doc.save()
-	frappe.db.set_value(ds_doc.entity_type,ds_doc.entity,'dsc_status',ds_doc.workflow_state)
+	frappe.db.set_value(ds_doc.document_type,ds_doc.document,'dsc_status',ds_doc.workflow_state)
 
 	frappe.local.response['type'] = 'redirect'
 	frappe.local.response['location'] = results.url
@@ -154,6 +148,12 @@ def get_signed_document(doctype,docname):
 		ds_doc = frappe.get_doc(doctype ,docname)
 		base_path = frappe.db.get_single_value('Docusign Settings','base_path')
 		account_id = frappe.db.get_single_value('Docusign Settings','account_id')
+		bench_path = get_bench_path()
+		site_path = get_site_path().replace(".", "/sites",1)
+		base_path_ = bench_path + site_path
+		file_name = frappe.generate_hash("",5) + ".pdf"
+		cert_file_name = "cert_" + file_name
+
 		if ds_doc.documents:
 			docusign_settings = frappe.get_single('Docusign Settings')
 			client_id = docusign_settings.integration_key
@@ -161,6 +161,7 @@ def get_signed_document(doctype,docname):
 			auth_code_string = '{0}:{1}'.format(client_id,client_secret_key)
 			auth_token = base64.b64encode(auth_code_string.encode())
 
+			# Generate Authentication token from authorization code
 			base_url = "https://account-d.docusign.com/oauth/token"
 			req_headers = {"Authorization":"Basic {0}".format(auth_token.decode('utf-8'))}
 			post_data = {'grant_type':'authorization_code','code': ds_doc.code}
@@ -173,56 +174,55 @@ def get_signed_document(doctype,docname):
 					if not 'error' in response:
 						access_token = response['access_token']
 					
-					url = "https://demo.docusign.net/restapi/v2.1/accounts/"+ account_id +"/envelopes/" + document.docusign_envelope_id
+					# Envelope Status check API
+					url = base_path + "/v2.1/accounts/"+ account_id +"/envelopes/" + document.docusign_envelope_id
 					headers = {'Authorization': 'Bearer '+ access_token}
 					r = requests.get(url,headers=headers)
 					response = r.json()
+
 					if r.status_code == 200 and response['status']=="completed":
+						# certificate API
+						cert_url = base_path + "/v2.1/accounts/"+ account_id  + response['certificateUri']
+						certificate_response = requests.get(cert_url,headers=headers)
+						cert_file_path = "/private/files/" + cert_file_name
+						cert_file = open(base_path_ + cert_file_path, "wb")
+						cert_file.write(certificate_response.content)
+						cert_file.close()
+						save_file(fname=cert_file_name, content=base64.b64encode(certificate_response.content),dt=ds_doc.doctype, dn=ds_doc.name, decode=True, is_private=1)
+						
+						# Signed document API
 						api_client = ApiClient()
 						api_client.host = base_path
 						api_client.set_default_header("Authorization","Bearer " + access_token)
-
 						envelope_api = EnvelopesApi(api_client)
-
-						temp_file = envelope_api.get_document(
-							account_id=account_id,
-							document_id=1,
-							envelope_id=document.docusign_envelope_id
-						)
-						bench_path = get_bench_path()
-						site_path = get_site_path().replace(".", "/sites",1)
-						base_path_ = bench_path + site_path
-						file_name = frappe.generate_hash("",5) + ".pdf"
+						temp_file = envelope_api.get_document(account_id,'1',document.docusign_envelope_id)
 						private_file_path = "/private/files/" + file_name
 						os.rename(temp_file, base_path_ + private_file_path)
-
-						document.db_set('document',private_file_path)
-						document.db_set('user', frappe.session.user)
-						document.db_set('timestamp',now_datetime())
-
 						with open(base_path_ + private_file_path, "rb") as pdf_file:
 							encoded_string = base64.b64encode(pdf_file.read())
 						save_file(fname=file_name, content=encoded_string,dt=ds_doc.doctype, dn=ds_doc.name, decode=True, is_private=1)
 						
+						document.db_set('document',private_file_path)
+						document.db_set('certificate',cert_file_path)
+						document.db_set('user', frappe.session.user)
+						document.db_set('timestamp',now_datetime())
+
 						ds_doc.db_set('workflow_state',ds_doc.workflow_state.replace('Signing','Completed'))
-						frappe.db.set_value(ds_doc.entity_type,ds_doc.entity,'dsc_status',ds_doc.workflow_state)
+						ds_doc.db_set('previous_state',ds_doc.workflow_state.replace('Signing','Completed'))
+						frappe.db.set_value(ds_doc.document_type,ds_doc.document,'dsc_status',ds_doc.workflow_state)
 					else:
-						ds_doc.db_set('workflow_state','Test')
+						ds_doc.db_set('workflow_state',ds_doc.previous_state)
+						frappe.msgprint("Your transaction is incomplete. Please try after sometime")
 						
 			frappe.local.response['type'] = 'redirect'
 			frappe.local.response['location'] = get_url_to_form("Digital Signature",ds_doc.name)
 			frappe.db.commit()
 
-# def dsc_change_status():
-	# data = frappe.get_all("Digital Signature","name")
-	# for row in data:
-	# 	doc = frappe.get_doc("Digital Signature",row['name'])
-	# 	if doc.workflow_state == "DSC 1 Signing" and len(doc.documents) == 1:
-	# 		doc.db_set("workflow_state","DSC 1 Completed")
-	# 	if doc.workflow_state == "DSC 2 Signing" and len(doc.documents) == 2:
-	# 		doc.db_set("workflow_state","DSC 2 Completed")
-	# 	if doc.workflow_state == "DSC 3 Signing" and len(doc.documents) == 3:
-	# 		doc.db_set("workflow_state","DSC 3 Completed")
-	# 	if doc.workflow_state == "DSC 4 Signing" and len(doc.documents) == 4:
-	# 		doc.db_set("workflow_state","DSC 4 Completed")
-	# frappe.db.commit()
+def dsc_change_status():
+	data = frappe.get_all("Digital Signature","name")
+	for row in data:
+		doc = frappe.get_doc("Digital Signature",row['name'])
+		if "Signing" in doc.workflow_state and doc.workflow_state != doc.previous_state:
+			doc.db_set("workflow_state",doc.previous_state)
+			frappe.db.set_value(doc.document_type,doc.document,'dsc_status',doc.previous_state)
+	frappe.db.commit()
