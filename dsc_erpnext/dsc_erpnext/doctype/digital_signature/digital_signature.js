@@ -6,8 +6,12 @@ frappe.ui.form.on('Digital Signature', {
 			}};
 		});
 	},
-	
+	before_workflow_action: function(frm){
+		console.log('before')
+		console.log(frm.doc.workflow_action)
+	},
 	after_workflow_action: function(frm){
+		console.log(frm.doc.workflow_action)
 		if(frm.doc.workflow_action != "Cancel"){
 			frappe.call({
 				'method': "dsc_erpnext.dsc_api.get_access_code",

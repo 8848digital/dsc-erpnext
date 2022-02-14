@@ -13,8 +13,8 @@ import json
 def get_access_code(doctype, docname):
 	base_url =  "https://account-d.docusign.com/oauth/auth"
 	client_id = frappe.db.get_single_value('Docusign Settings','integration_key')
-	redirect_uri = 'http://192.168.0.100/api/method/dsc_erpnext.dsc_api.auth_login'
-	#redirect_uri = get_request_site_address() +'/api/method/dsc_erpnext.dsc_api.auth_login'
+	#redirect_uri = 'http://192.168.0.100/api/method/dsc_erpnext.dsc_api.auth_login'
+	redirect_uri = get_request_site_address() +'/api/method/dsc_erpnext.dsc_api.auth_login'
 	auth_url = "{0}?response_type=code&state={1}&scope=signature&client_id={2}&redirect_uri={3}".format(base_url, doctype+'|'+docname,client_id, redirect_uri)
 	return auth_url
 	
@@ -123,8 +123,8 @@ def get_signing_url(doctype,docname,token,code):
 	results = envelope_api.create_envelope(account_id=args['account_id'],envelope_definition=envelope_definition)
 
 	envelope_id = results.envelope_id
-	return_url = "http://192.168.0.100/api/method/dsc_erpnext.dsc_api.get_signed_document?doctype=" + ds_doc.doctype+"&docname=" + ds_doc.name
-	#return_url = get_request_site_address() + "/api/method/dsc_erpnext.dsc_api.get_signed_document?doctype=" + ds_doc.doctype+"&docname=" + ds_doc.name
+	#return_url = "http://192.168.0.100/api/method/dsc_erpnext.dsc_api.get_signed_document?doctype=" + ds_doc.doctype+"&docname=" + ds_doc.name
+	return_url = get_request_site_address() + "/api/method/dsc_erpnext.dsc_api.get_signed_document?doctype=" + ds_doc.doctype+"&docname=" + ds_doc.name
 	recipient_view_request = RecipientViewRequest(
 		authentication_method="email",client_user_id=args['client_id'],
 		recipient_id = 1, return_url = return_url,
