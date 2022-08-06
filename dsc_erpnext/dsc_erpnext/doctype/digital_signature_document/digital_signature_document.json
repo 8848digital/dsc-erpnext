@@ -32,6 +32,7 @@
    "description": "If you already have workflow, you can select.",
    "fieldname": "workflow",
    "fieldtype": "Link",
+   "hidden": 1,
    "in_list_view": 1,
    "label": "Workflow",
    "options": "Workflow"
@@ -98,7 +99,7 @@
   }
  ],
  "links": [],
- "modified": "2021-11-30 11:22:50.718690",
+ "modified": "2022-08-06 14:53:01.946656",
  "modified_by": "Administrator",
  "module": "Dsc Erpnext",
  "name": "Digital Signature Document",

@@ -1,5 +1,7 @@
 import frappe
 from frappe.desk.form.utils import get_pdf_link
+from frappe.utils import get_link_to_form
+from frappe import _
 
 def on_submit(self,method):
     documents = get_digital_signature_documents(self.doctype)
@@ -14,6 +16,7 @@ def on_submit(self,method):
             doc.pdf_document = get_pdf_link(self.doctype, self.name, print_format)
             doc.save()
             doc.submit() 
+            frappe.msgprint(_("Created a new digital signature document {0}").format(get_link_to_form(f"DSC {self.doctype}", doc.name)))
 
 def get_digital_signature_documents(doctype):
     documents = frappe.db.sql(f"select print_format,workflow from `tabDigital Signature Document` where document_type = '{doctype}'",as_dict=True)
@@ -94,6 +97,7 @@ def create_doctype(doctype):
                 {
                     "doctype": "DocField",
                     "fieldname": "workflow",
+                    "hidden":1,
                     "fieldtype": "Data",
                     "label": "Workflow"
                 },
