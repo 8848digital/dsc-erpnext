@@ -26,7 +26,14 @@ def create_doctype(doctype):
         doc = frappe.new_doc("DocType")
         doc.editable_grid = 1
         doc.name = f"DSC {doctype}"
-        doc.autoname = f"DSC{doctype}-.####"
+        a = doctype.split(" ")
+        if len(a)>1:
+            name = a[0][0]+a[1][0]
+        else:
+            name = a[0][0]
+        doc.autoname = f"D-{name}-.####"
+        doc.track_changes = 1
+        doc.is_submittable = 1
         list = [{
                     "doctype": "DocField",
                     "fieldname": "document_type",
@@ -64,24 +71,37 @@ def create_doctype(doctype):
                     "doctype": "DocField",
                     "fieldname": "pdf_document",
                     "fieldtype": "Attach",
+                    "allow_on_submit": 1,
                     "label": "PDF Document"
                 },
                 {
                     "doctype": "DocField",
                     "fieldname": "amended_from",
+                    "read_only":1,
                     "fieldtype": "Link",
                     "label": "Amended From",
-                    "options": "Digital Signature",
+                    "options": f"DSC {doctype}"
                 },
                 {
                     "doctype": "DocField",
                     "fieldname": "workflow_state",
+                    "allow_on_submit": 1,
+                    "hidden":1,
+                    "no_copy": 1,
                     "fieldtype": "Data",
                     "label": "Workflow state"
                 },
                 {
                     "doctype": "DocField",
+                    "fieldname": "workflow",
+                    "fieldtype": "Data",
+                    "label": "Workflow"
+                },
+                {
+                    "doctype": "DocField",
                     "fieldname": "code",
+                    "allow_on_submit": 1,
+                    "hidden":1,
                     "fieldtype": "Small Text",
                     "label": "Code"
                 },
@@ -103,13 +123,17 @@ def create_doctype(doctype):
                     "doctype": "DocField",
                     "fieldname": "documents",
                     "fieldtype": "Table",
+                    "allow_on_submit": 1,
+                    "no_copy": 1,
                     "label": "Documents",
                     "options": "Digital Signature Signed Document",
                 }]
         for item in list:
             doc.append("fields",item)
         doc.append("permissions",  {
-                    "role": "System Manager"
+                    "role": "System Manager",
+                    "submit": 1,
+                    "Cancel": 1
                     })
         doc.module="Dsc Erpnext"
         doc.save(ignore_permissions=True)

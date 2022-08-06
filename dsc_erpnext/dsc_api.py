@@ -236,3 +236,33 @@ def dsc_change_status():
 			doc.db_set("workflow_state",doc.previous_state)
 			frappe.db.set_value(doc.document_type,doc.document,'dsc_status',doc.previous_state)
 	frappe.db.commit()
+
+	data = frappe.get_all("DSC Sales Invoice","name") 
+	for row in data:
+		doc = frappe.get_doc("DSC Sales Invoice",row['name'])
+		if "Signing" in doc.workflow_state and doc.workflow_state != doc.previous_state:
+			doc.db_set("workflow_state",doc.previous_state)
+			frappe.db.set_value(doc.document_type,doc.document,'dsc_status',doc.previous_state)
+	frappe.db.commit()
+
+	data = frappe.get_all("DSC Purchase Order","name") 
+	for row in data:
+		doc = frappe.get_doc("DSC Purchase Order",row['name'])
+		if "Signing" in doc.workflow_state and doc.workflow_state != doc.previous_state:
+			doc.db_set("workflow_state",doc.previous_state)
+			frappe.db.set_value(doc.document_type,doc.document,'dsc_status',doc.previous_state)
+	frappe.db.commit()
+
+def validate(self,event):
+	if self.document_type and not frappe.db.exists("Custom Field",{'dt':self.document_type,'fieldname':'dsc_status'}):
+		status = frappe.new_doc("Custom Field")
+		status.dt = self.document_type
+		status.label = 'DSC Status'
+		status.fieldname = 'dsc_status'
+		status.fieldtype = "Data"
+		status.allow_on_submit = 1
+		status.read_only = 1
+		status.no_copy = 1 
+		status.save()
+	if self.workflow_state:
+		self.previous_state = self.workflow_state

@@ -14,6 +14,12 @@ app_license = "MIT"
 doc_events = {
 	"*": {
 		"on_submit": "dsc_erpnext.api.on_submit",
+	},
+	"DSC Purchase Order":{
+		"validate":"dsc_erpnext.dsc_api.validate"
+	},
+	"DSC Sales Invoice":{
+		"validate":"dsc_erpnext.dsc_api.validate"
 	}
 }
 

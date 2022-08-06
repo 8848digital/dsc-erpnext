@@ -12,7 +12,7 @@ class DigitalSignatureDocument(Document):
     
     def create_workflow(self):
         try:
-            if not frappe.db.exists("DocType",f"DSC {self.doctype}"):
+            if not frappe.db.exists("DocType",f"DSC {self.document_type}"):
                 create_doctype(self.document_type)
             workflow_state_list = ["DSC 1 Completed","DSC 2 Completed","DSC 3 Completed","DSC Completed"]
             workflow_internal_list = ["DSC 1 Signing","DSC 2 Signing","DSC 3 Signing","DSC Signing"]
@@ -42,6 +42,7 @@ class DigitalSignatureDocument(Document):
                 # workflow.document_type = "Digital Signature"
                 workflow.document_type = f"DSC {self.document_type}"
                 workflow.sent_email_alert = 0
+                workflow.is_active = 1
             
                 if self.role_1:
                     next_state = next_internal_state = workflow_internal_list[0]
