@@ -16,7 +16,7 @@ Signin/Signup with your details.
 You will get the Account id and Basic path.
 
 Create project you will get Integration key and secret key.<br><br>
-	<img src="https://user-images.githubusercontent.com/49873594/183581014-d3609093-b5b2-40a5-9d39-507ee83f386f.png" width="50%"><br><br>
+	<img src="https://user-images.githubusercontent.com/49873594/183821469-b14f53f5-6417-44e3-9912-2a3e27bb2786.png" width="50%"><br><br>
 </div> 
 
 <div id="step2">
