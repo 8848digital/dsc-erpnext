@@ -1,10 +1,9 @@
 <div align="center">
 <a href="https://admindemo.docusign.com/"><img src="https://user-images.githubusercontent.com/49873594/183577549-d4750f7e-b927-4ec0-9cd9-f52e63a65a18.png"></a>
 </div>
-		
+<hr>		
 <span>DocuSign is the fast, reliable way to electronically sign from almost anywhere in the world. </span>
 <h2>Docusign Setup Instructions></h2>
-<hr>
 <ul>
 	<li><h2><a href="#step1">Step 1</a></h2></li>
 	<li><h2><a href="#step2">Step 2</a></h2></li>
