@@ -3,7 +3,7 @@
 </div>
 <hr>		
 <span>DocuSign is the fast, reliable way to electronically sign from almost anywhere in the world. </span>
-<h2>Docusign Setup Instructions></h2>
+<h2>Docusign Setup Instructions</h2>
 <ul>
 	<li><h2><a href="#step1">Step 1</a></h2></li>
 	<li><h2><a href="#step2">Step 2</a></h2></li>
