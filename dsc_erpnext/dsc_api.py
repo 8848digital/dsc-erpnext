@@ -8,6 +8,9 @@ import requests
 import base64
 import os
 import json
+from dsc_erpnext.dsc_erpnext.doctype.docusign_response_log.docusign_response_log import create_response_log
+from dsc_erpnext.dsc_erpnext.doctype.docusign_request_log.docusign_request_log import create_request_log
+
 
 @frappe.whitelist()
 def get_access_code(doctype, docname):
@@ -41,9 +44,10 @@ def get_access_token():
 		docname = document.split('|')[1]
 		req_headers = {"Authorization":"Basic {0}".format(auth_token.decode('utf-8'))}
 		post_data = {'grant_type':'authorization_code','code': code}
-
+		create_request_log(base_url,payload=str(post_data))
 		r = requests.post(base_url, data=post_data, headers=req_headers)
 		response = r.json()
+		create_response_log(str(response),base_url)
 
 		if not 'error' in response:
 			return {'access_token': response['access_token'],'doctype': doctype,'docname': docname, 'code': code }
@@ -174,18 +178,20 @@ def get_signed_document(doctype,docname):
 
 			for document in ds_doc.documents:
 				if not document.document and document.docusign_envelope_id:
+					create_request_log(base_url,payload=str(post_data))
 					r = requests.post(base_url, data=post_data, headers=req_headers)
 					response = r.json()
-
+					create_response_log(str(response),base_url,ds_doc.doctype,ds_doc.name)
 					if not 'error' in response:
 						access_token = response['access_token']
 					
 					# Envelope Status check API
 					url = base_path + "/v2.1/accounts/"+ account_id +"/envelopes/" + document.docusign_envelope_id
 					headers = {'Authorization': 'Bearer '+ access_token}
+					create_request_log(url)
 					r = requests.get(url,headers=headers)
 					response = r.json()
-
+					create_response_log(str(response),url,ds_doc.doctype,ds_doc.name)
 					if r.status_code == 200 and response['status']=="completed":
 						# certificate API
 						cert_url = base_path + "/v2.1/accounts/"+ account_id  + response['certificateUri']
